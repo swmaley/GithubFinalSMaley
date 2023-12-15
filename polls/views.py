@@ -49,18 +49,18 @@ def vote(request, question_id):
 
 
 class RainbowSixSiegeStatsView(generic.View):
-    def get(self, request, *args, **kwargs):
+    async def get(self, request, *args, **kwargs):
         username = request.GET.get('username')
 
         if not username:
             return JsonResponse({'error': 'Username parameter is required'}, status=400)
 
-        ubisoft_email = 'email'
-        ubisoft_password = 'password'
+        ubisoft_email = 'your_ubisoft_email@example.com'
+        ubisoft_password = 'your_ubisoft_password'
         siege_service = RainbowSixSiegeService(ubisoft_email, ubisoft_password)
 
         try:
-            player_stats = siege_service.get_player_stats(username)
+            player_stats = await siege_service.get_player_stats(username)
             return JsonResponse({'player_stats': player_stats}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
