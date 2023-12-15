@@ -1,9 +1,9 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
-
 from .models import Choice, Question
+from .services import RainbowSixSiegeService
 
 
 class IndexView(generic.ListView):
@@ -46,3 +46,23 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
+
+
+class RainbowSixSiegeStatsView(generic.View):
+    def get(self, request, *args, **kwargs):
+        username = request.GET.get('username')
+
+        if not username:
+            return JsonResponse({'error': 'Username parameter is required'}, status=400)
+
+        ubisoft_email = 'email'
+        ubisoft_password = 'password'
+        siege_service = RainbowSixSiegeService(ubisoft_email, ubisoft_password)
+
+        try:
+            player_stats = siege_service.get_player_stats(username)
+            return JsonResponse({'player_stats': player_stats}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
